@@ -1,0 +1,11 @@
+META-INF/maven/org.slf4j/log4j-over-slf4j
+
+org/apache/log4j/spi
+org/apache
+META-INF/maven
+org/apache/log4j
+org/apache/log4j/helpers
+META-INF/maven/org.slf4j
+org/apache/log4j/xml
+org
+META-INF

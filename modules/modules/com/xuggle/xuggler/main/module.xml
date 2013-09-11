@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- Represents the Hibernate 4.0.x module-->
+<module xmlns="urn:jboss:module:1.1" name="com.xuggle.xuggler" slot="main"> 
+  <resources> 
+	<resource-root path="xuggle-xuggler.jar" />
+  </resources> 
+  <dependencies>
+	<module name="org.red5" />
+  </dependencies>
+</module>

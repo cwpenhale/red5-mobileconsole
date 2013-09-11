@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<module xmlns="urn:jboss:module:1.1" name="org.red5.spring" slot="main"> 
+  <resources> 
+	<resource-root path="spring-aop-3.1.1.RELEASE.jar" />
+	<resource-root path="spring-asm-3.1.1.RELEASE.jar" />
+	<resource-root path="spring-beans-3.1.1.RELEASE.jar" />
+	<resource-root path="spring-context-3.1.1.RELEASE.jar" />
+	<resource-root path="spring-core-3.1.1.RELEASE.jar" />
+	<resource-root path="spring-expression-3.1.1.RELEASE.jar" />
+	<resource-root path="spring-test-3.1.1.RELEASE.jar" />
+	<resource-root path="spring-web-3.1.1.RELEASE.jar" />
+  </resources> 
+  <dependencies>
+      <module name="javax.api" export="true" />
+      <module name="javax.servlet.api" export="true" />
+      <module name="org.apache.commons.logging" export="true" />
+      <module name="org.red5.deps" export="true" />
+  </dependencies>
+</module> 

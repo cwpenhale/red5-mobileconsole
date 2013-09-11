@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<module xmlns="urn:jboss:module:1.1" name="org.red5.context" slot="main"> 
+  <resources> 
+	<resource-root path="." />
+  </resources>
+  <dependencies>
+      <module name="org.red5" export="true" />     
+      <module name="org.red5.spring" export="true" />     
+  </dependencies> 
+</module> 
+

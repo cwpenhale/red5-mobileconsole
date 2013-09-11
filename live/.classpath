@@ -11,20 +11,18 @@
 			<attribute name="owner.project.facets" value="jst.web;#system#"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Xuggler"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Red5"/>
-	<classpathentry kind="lib" path="/mobileConsole/target/classes/com/destinationradiodenver/mobileStreaming/messages"/>
 	<classpathentry kind="src" path="/mobileConsole"/>
-	<classpathentry kind="lib" path="/Users/cpenhale/Downloads/seam-spring-3.1.0.Alpha1/artifacts/seam-spring-core.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="src" path="/red5_server"/>
+	<classpathentry kind="lib" path="/modules/modules/com/xuggle/xuggler/main/xuggle-xuggler.jar"/>
+	<classpathentry kind="lib" path="/modules/modules/org/red5/spring/main/spring-context-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/modules/modules/org/red5/spring/main/seam-spring-core.jar"/>
+	<classpathentry kind="lib" path="/modules/modules/org/apache/commons/io/main/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="/modules/modules/org/apache/commons/lang/main/commons-lang3-3.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

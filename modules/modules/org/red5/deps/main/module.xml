@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<module xmlns="urn:jboss:module:1.1" name="org.red5.deps" slot="main"> 
+  <resources> 
+	<resource-root path="bcprov-jdk15on-1.47.jar" />
+	<resource-root path="commons-beanutils-1.8.3.jar" />
+	<resource-root path="commons-cli-1.2.jar" />
+	<resource-root path="commons-codec-1.6.jar" />
+	<resource-root path="commons-collections-3.2.jar" />
+	<resource-root path="commons-io-2.4.jar" />
+	<resource-root path="commons-lang3-3.1.jar" />
+	<resource-root path="ehcache-core-2.5.0.jar" />
+	<resource-root path="httpclient-4.2.1.jar" />
+	<resource-root path="httpcore-4.2.1.jar" />
+	<resource-root path="jaudiotagger-2.0.4-SNAPSHOT.jar" />
+	<resource-root path="jcl-over-slf4j-1.7.2.jar" />
+	<resource-root path="jruby-1.6.8.jar" />
+	<resource-root path="jul-to-slf4j-1.7.2.jar" />
+	<resource-root path="jython-standalone-2.5.3.jar" />
+	<resource-root path="log4j-1.2.14.jar" />
+	<resource-root path="log4j-over-slf4j-1.7.2.jar" />
+	<resource-root path="logback-classic-1.0.9.jar" />
+	<resource-root path="logback-core-1.0.9.jar" />
+	<resource-root path="mina-core-2.0.7.jar" />
+	<resource-root path="mina-integration-beans-2.0.7.jar" />
+	<resource-root path="mina-integration-jmx-2.0.7.jar" />
+	<resource-root path="quartz-1.8.6.jar" />
+	<resource-root path="slf4j-api-1.7.2.jar" />
+	<resource-root path="xmlrpc-2.0.1.jar" />
+  </resources> 
+  <dependencies>
+      <module name="org.slf4j" export="true" />
+      <module name="javax.servlet.api" export="true" />
+      <module name="javax.transaction.api" export="true" />
+      <module name="org.apache.commons.logging" export="true"/>
+      <module name="javax.api" export="true" />
+      <module name="org.red5" export="true" />     
+      <module name="org.red5.spring" export="true" />     
+  </dependencies>
+</module> 
+

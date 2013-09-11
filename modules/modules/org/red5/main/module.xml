@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<module xmlns="urn:jboss:module:1.1" name="org.red5" slot="main"> 
+  <resources> 
+	<resource-root path="red5-server-1.0-bootstrap.jar" />
+	<resource-root path="red5-server-1.0.jar" />
+	<resource-root path="red5-server-1.0-javadoc.jar" />
+	<resource-root path="red5-server-1.0-sources.jar" />
+  </resources> 
+  <dependencies>
+	<module name="javax.servlet.api" export="true" />
+	<module name="org.red5.spring" export="true" />
+	<module name="org.red5.deps" export="true" />
+  </dependencies>
+</module> 
