@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/resources/scaffold/pageTemplate.xhtml">
+
+	<f:metadata>
+		<f:viewParam name="page" value="#{streamBean.page}"/>
+		<f:event type="preRenderView" listener="#{streamBean.paginate}"/>
+	</f:metadata>
+
+	<ui:param name="pageTitle" value="Search Stream entities"/>
+
+	<ui:define name="header">
+		Stream
+	</ui:define>
+
+	<ui:define name="subheader">
+		Search Stream entities
+	</ui:define>
+
+	<ui:define name="footer"/>
+
+	<ui:define name="main">
+		<h:form id="search">
+			<f:validateBean disabled="true">
+				<h:panelGroup styleClass="search">
+
+					<h:panelGrid columnClasses="label,component,required" columns="3">
+						<h:outputLabel for="streamBeanExampleFriendlyName" value="Friendly Name:"/>
+						<h:panelGroup>
+							<h:inputText id="streamBeanExampleFriendlyName" value="#{streamBean.example.friendlyName}"/>
+							<h:message for="streamBeanExampleFriendlyName" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="streamBeanExampleDescription" value="Description:"/>
+						<h:panelGroup>
+							<h:inputText id="streamBeanExampleDescription" value="#{streamBean.example.description}"/>
+							<h:message for="streamBeanExampleDescription" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="streamBeanExampleRtmpUri" value="Rtmp Uri:"/>
+						<h:panelGroup>
+							<h:inputText id="streamBeanExampleRtmpUri" value="#{streamBean.example.rtmpUri}"/>
+							<h:message for="streamBeanExampleRtmpUri" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="streamBeanExampleServer" value="Server:"/>
+						<h:panelGroup>
+							<h:selectOneMenu converter="#{red5ServerBean.converter}" id="streamBeanExampleServer" value="#{streamBean.example.server}">
+								<f:selectItem/>
+								<f:selectItems value="#{red5ServerBean.all}"/>
+							</h:selectOneMenu>
+							<h:message for="streamBeanExampleServer" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="streamBeanExampleRestartEncodersEveryMinutes" value="Restart Encoders Every Minutes:"/>
+						<h:panelGroup>
+							<h:inputText id="streamBeanExampleRestartEncodersEveryMinutes" value="#{streamBean.example.restartEncodersEveryMinutes}"/>
+							<h:message for="streamBeanExampleRestartEncodersEveryMinutes" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+					</h:panelGrid>
+					<h:panelGroup styleClass="buttons">
+						<h:commandLink value="Search" action="#{streamBean.search}" styleClass="btn btn-primary"/>
+						<h:commandLink value="Create New" action="#{streamBean.create}" styleClass="btn btn-primary"/>
+					</h:panelGroup>
+				</h:panelGroup>
+			</f:validateBean>
+			
+			<h:dataTable id="streamBeanPageItems" styleClass="data-table" value="#{streamBean.pageItems}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Friendly Name"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemFriendlyName" value="#{_item.friendlyName}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Description"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemDescription" value="#{_item.description}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Rtmp Uri"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemRtmpUri" value="#{_item.rtmpUri}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Server"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemServer" value="#{_item.server}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Automatically Start Encoders"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText styleClass="#{_item.automaticallyStartEncoders ? 'boolean-true' : 'boolean-false'}" value=""/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<ui:include src="/resources/scaffold/paginator.xhtml">
+				<ui:param name="paginatorBean" value="#{streamBean}"/>
+			</ui:include>
+		</h:form>
+			
+	</ui:define>
+
+</ui:composition>

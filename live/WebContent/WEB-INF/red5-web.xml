@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cdi="http://www.jboss.org/schema/seam/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.jboss.org/schema/seam/spring http://localhost/seam-spring-3.1.xsd">
+
+	<bean id="web.context" class="org.red5.server.Context" autowire="byType" />
+
+	<bean id="web.scope" class="org.red5.server.scope.WebScope"
+		init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context" />
+		<property name="handler" ref="application" />
+		<property name="contextPath" value="/live" />
+		<property name="virtualHosts" value="*" />
+	</bean>
+
+	<bean id="application" class="com.destinationradiodenver.mobileStreaming.Application" />
+
+	<bean id="streamFilenameGenerator" class="com.destinationradiodenver.mobileStreaming.CustomFilenameGenerator">
+		<property name="recordPath" value="/var/log/dRDrecordings/" />
+		<property name="playbackPath" value="/var/log/dRDrecordings/" />
+		<property name="resolvesAbsolutePath" value="true" />
+	</bean>
+
+</beans>

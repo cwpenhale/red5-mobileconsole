@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:forgeview="http://jboss.org/forge/view"
+	template="/resources/scaffold/pageTemplate.xhtml">
+
+	<f:metadata>
+		<f:viewParam name="id" value="#{streamBean.id}"/>
+		<f:event type="preRenderView" listener="#{streamBean.retrieve}"/>
+	</f:metadata>
+
+	<ui:param name="pageTitle" value="View Stream"/>
+
+	<ui:define name="header">
+		Stream
+	</ui:define>
+
+	<ui:define name="subheader">
+		View existing Stream
+	</ui:define>
+
+	<ui:define name="footer"/>
+
+	<ui:define name="main">
+		<h:panelGrid columnClasses="label,component,required" columns="3">
+			<h:outputLabel for="streamBeanStreamFriendlyName" value="Friendly Name:"/>
+			<h:outputText id="streamBeanStreamFriendlyName" value="#{streamBean.stream.friendlyName}"/>
+			<h:outputText/>
+			<h:outputLabel for="streamBeanStreamDescription" value="Description:"/>
+			<h:outputText id="streamBeanStreamDescription" value="#{streamBean.stream.description}"/>
+			<h:outputText/>
+			<h:outputLabel for="streamBeanStreamRtmpUri" value="Rtmp Uri:"/>
+			<h:outputText id="streamBeanStreamRtmpUri" value="#{streamBean.stream.rtmpUri}"/>
+			<h:outputText/>
+			<h:outputLabel for="streamBeanStreamMobileProfiles" value="Mobile Profiles:"/>
+			<h:dataTable id="streamBeanStreamMobileProfiles" styleClass="data-table" value="#{forgeview:asList(streamBean.stream.mobileProfiles)}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Name"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemName" value="#{_item.name}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Bandwidth"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemBandwidth" value="#{_item.bandwidth}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Width"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemWidth" value="#{_item.width}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Height"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemHeight" value="#{_item.height}"/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<h:outputText/>
+			<h:outputLabel for="streamBeanStreamServer" value="Server:"/>
+			<h:link id="streamBeanStreamServer" outcome="/red5Server/view" value="#{streamBean.stream.server}">
+				<f:param name="id" value="#{streamBean.stream.server.id}"/>
+			</h:link>
+			<h:outputText/>
+			<h:outputLabel for="streamBeanStreamEncoders" value="Encoders:"/>
+			<h:dataTable id="streamBeanStreamEncoders" styleClass="data-table" value="#{forgeview:asList(streamBean.stream.encoders)}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Mobile Profile"/>
+					</f:facet>
+					<h:link outcome="/encoder/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemMobileProfile" value="#{_item.mobileProfile}"/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<h:outputText/>
+			<h:outputLabel value="Automatically Start Encoders:"/>
+			<h:outputText styleClass="#{streamBean.stream.automaticallyStartEncoders ? 'boolean-true' : 'boolean-false'}" value=""/>
+			<h:outputText/>
+			<h:outputLabel for="streamBeanStreamRestartEncodersEveryMinutes" value="Restart Encoders Every Minutes:"/>
+			<h:outputText id="streamBeanStreamRestartEncodersEveryMinutes" value="#{streamBean.stream.restartEncodersEveryMinutes}"/>
+			<h:outputText/>
+		</h:panelGrid>
+
+		<div class="buttons">
+			<h:link value="View All" outcome="search" styleClass="btn btn-primary"/> 
+			<h:link value="Edit" outcome="create" includeViewParams="true" styleClass="btn btn-primary"/>
+			<h:link value="Create New" outcome="create" styleClass="btn btn-primary"/>
+		</div>
+	</ui:define>
+
+</ui:composition>

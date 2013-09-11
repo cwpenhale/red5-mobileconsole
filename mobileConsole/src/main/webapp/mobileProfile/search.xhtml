@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/resources/scaffold/pageTemplate.xhtml">
+
+	<f:metadata>
+		<f:viewParam name="page" value="#{mobileProfileBean.page}"/>
+		<f:event type="preRenderView" listener="#{mobileProfileBean.paginate}"/>
+	</f:metadata>
+
+	<ui:param name="pageTitle" value="Search Mobile Profile entities"/>
+
+	<ui:define name="header">
+		Mobile Profile
+	</ui:define>
+
+	<ui:define name="subheader">
+		Search Mobile Profile entities
+	</ui:define>
+
+	<ui:define name="footer"/>
+
+	<ui:define name="main">
+		<h:form id="search">
+			<f:validateBean disabled="true">
+				<h:panelGroup styleClass="search">
+
+					<h:panelGrid columnClasses="label,component,required" columns="3">
+						<h:outputLabel for="mobileProfileBeanExampleName" value="Name:"/>
+						<h:panelGroup>
+							<h:inputText id="mobileProfileBeanExampleName" value="#{mobileProfileBean.example.name}"/>
+							<h:message for="mobileProfileBeanExampleName" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="mobileProfileBeanExampleBandwidth" value="Bandwidth:"/>
+						<h:panelGroup>
+							<h:inputText id="mobileProfileBeanExampleBandwidth" value="#{mobileProfileBean.example.bandwidth}"/>
+							<h:message for="mobileProfileBeanExampleBandwidth" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="mobileProfileBeanExampleWidth" value="Width:"/>
+						<h:panelGroup>
+							<h:inputText id="mobileProfileBeanExampleWidth" value="#{mobileProfileBean.example.width}"/>
+							<h:message for="mobileProfileBeanExampleWidth" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="mobileProfileBeanExampleHeight" value="Height:"/>
+						<h:panelGroup>
+							<h:inputText id="mobileProfileBeanExampleHeight" value="#{mobileProfileBean.example.height}"/>
+							<h:message for="mobileProfileBeanExampleHeight" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+					</h:panelGrid>
+					<h:panelGroup styleClass="buttons">
+						<h:commandLink value="Search" action="#{mobileProfileBean.search}" styleClass="btn btn-primary"/>
+						<h:commandLink value="Create New" action="#{mobileProfileBean.create}" styleClass="btn btn-primary"/>
+					</h:panelGroup>
+				</h:panelGroup>
+			</f:validateBean>
+			
+			<h:dataTable id="mobileProfileBeanPageItems" styleClass="data-table" value="#{mobileProfileBean.pageItems}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Name"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemName" value="#{_item.name}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Bandwidth"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemBandwidth" value="#{_item.bandwidth}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Width"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemWidth" value="#{_item.width}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Height"/>
+					</f:facet>
+					<h:link outcome="/mobileProfile/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemHeight" value="#{_item.height}"/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<ui:include src="/resources/scaffold/paginator.xhtml">
+				<ui:param name="paginatorBean" value="#{mobileProfileBean}"/>
+			</ui:include>
+		</h:form>
+			
+	</ui:define>
+
+</ui:composition>

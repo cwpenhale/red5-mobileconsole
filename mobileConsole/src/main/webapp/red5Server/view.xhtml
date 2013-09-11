@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:forgeview="http://jboss.org/forge/view"
+	template="/resources/scaffold/pageTemplate.xhtml">
+
+	<f:metadata>
+		<f:viewParam name="id" value="#{red5ServerBean.id}"/>
+		<f:event type="preRenderView" listener="#{red5ServerBean.retrieve}"/>
+	</f:metadata>
+
+	<ui:param name="pageTitle" value="View Red 5Server"/>
+
+	<ui:define name="header">
+		Red 5Server
+	</ui:define>
+
+	<ui:define name="subheader">
+		View existing Red 5Server
+	</ui:define>
+
+	<ui:define name="footer"/>
+
+	<ui:define name="main">
+		<h:panelGrid columnClasses="label,component,required" columns="3">
+			<h:outputLabel for="red5ServerBeanRed5ServerName" value="Name:"/>
+			<h:outputText id="red5ServerBeanRed5ServerName" value="#{red5ServerBean.red5Server.name}"/>
+			<h:outputText/>
+			<h:outputLabel for="red5ServerBeanRed5ServerHostname" value="Hostname:"/>
+			<h:outputText id="red5ServerBeanRed5ServerHostname" value="#{red5ServerBean.red5Server.hostname}"/>
+			<h:outputText/>
+			<h:outputLabel for="red5ServerBeanRed5ServerStreams" value="Streams:"/>
+			<h:dataTable id="red5ServerBeanRed5ServerStreams" styleClass="data-table" value="#{forgeview:asList(red5ServerBean.red5Server.streams)}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Friendly Name"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemFriendlyName" value="#{_item.friendlyName}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Description"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemDescription" value="#{_item.description}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Rtmp Uri"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemRtmpUri" value="#{_item.rtmpUri}"/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<h:outputText/>
+			<h:outputLabel value="Enabled:"/>
+			<h:outputText styleClass="#{red5ServerBean.red5Server.enabled ? 'boolean-true' : 'boolean-false'}" value=""/>
+			<h:outputText/>
+		</h:panelGrid>
+
+		<div class="buttons">
+			<h:link value="View All" outcome="search" styleClass="btn btn-primary"/> 
+			<h:link value="Edit" outcome="create" includeViewParams="true" styleClass="btn btn-primary"/>
+			<h:link value="Create New" outcome="create" styleClass="btn btn-primary"/>
+		</div>
+	</ui:define>
+
+</ui:composition>

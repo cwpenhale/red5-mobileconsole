@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+
+	<ear-subdeployments-isolated>false</ear-subdeployments-isolated>
+
+	<deployment>
+		<dependencies>
+			<module name="com.destinationradiodenver.configuration"
+				export="true" />
+			<module name="org.red5" export="true" />
+		</dependencies>
+	</deployment>
+	<sub-deployment name="red5.war">
+		<dependencies>
+			<module name="org.red5.deps" export="true" />
+			<module name="org.red5.spring" export="true" />
+			<module name="org.red5.context" export="true" />
+		</dependencies>
+	</sub-deployment>
+	<sub-deployment name="live.war">
+		<dependencies>
+			<module name="org.red5.deps" export="true" />
+			<module name="org.red5.spring" export="true" />
+			<module name="org.red5.context" export="true" />
+			<module name="com.xuggle.xuggler" />
+			<module name="javax.jms.api" />
+			<module name="javax.inject.api" />
+			<module name="deployment.red5-ear.ear.red5.war" />
+			<module name="deployment.red5-ear.ear.mobileConsole.war" />
+		</dependencies>
+	</sub-deployment>
+	<!-- 
+	 <sub-deployment name="chat.war">
+		<dependencies>
+			<module name="org.red5.deps" export="true" />
+			<module name="org.red5.spring" export="true" />
+			<module name="org.red5.context" export="true" />
+			<module name="javax.jms.api" />
+			<module name="javax.inject.api" />
+			<module name="deployment.red5-ear.ear.red5.war" />
+		</dependencies>
+	</sub-deployment>
+	 -->
+	<sub-deployment name="mobileConsole.war">
+		<dependencies>
+			<module name="org.jboss.richfaces" export="true">
+				<imports>
+					<include path="**" />
+				</imports>
+			</module>
+			<module name="org.primefaces" export="true">
+				<imports>
+					<include path="**" />
+				</imports>
+			</module>
+			<module name="org.hibernate" />
+			<module name="org.dom4j" />
+			<module name="org.hibernate.validator" />
+			<module name="javax.inject.api" />
+			<module name="javax.jms.api" />
+			<module name="org.codehaus.jackson.jackson-mapper-asl" />
+			<module name="org.codehaus.jackson.jackson-core-asl" />
+		</dependencies>
+	</sub-deployment>
+
+</jboss-deployment-structure>
+ 

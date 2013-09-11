@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:forgeview="http://jboss.org/forge/view"
+	template="/resources/scaffold/pageTemplate.xhtml">
+
+	<f:metadata>
+		<f:viewParam name="id" value="#{mobileProfileBean.id}"/>
+		<f:event type="preRenderView" listener="#{mobileProfileBean.retrieve}"/>
+	</f:metadata>
+
+	<ui:param name="pageTitle" value="View Mobile Profile"/>
+
+	<ui:define name="header">
+		Mobile Profile
+	</ui:define>
+
+	<ui:define name="subheader">
+		View existing Mobile Profile
+	</ui:define>
+
+	<ui:define name="footer"/>
+
+	<ui:define name="main">
+		<h:panelGrid columnClasses="label,component,required" columns="3">
+			<h:outputLabel for="mobileProfileBeanMobileProfileName" value="Name:"/>
+			<h:outputText id="mobileProfileBeanMobileProfileName" value="#{mobileProfileBean.mobileProfile.name}"/>
+			<h:outputText/>
+			<h:outputLabel for="mobileProfileBeanMobileProfileBandwidth" value="Bandwidth:"/>
+			<h:outputText id="mobileProfileBeanMobileProfileBandwidth" value="#{mobileProfileBean.mobileProfile.bandwidth}"/>
+			<h:outputText/>
+			<h:outputLabel for="mobileProfileBeanMobileProfileWidth" value="Width:"/>
+			<h:outputText id="mobileProfileBeanMobileProfileWidth" value="#{mobileProfileBean.mobileProfile.width}"/>
+			<h:outputText/>
+			<h:outputLabel for="mobileProfileBeanMobileProfileHeight" value="Height:"/>
+			<h:outputText id="mobileProfileBeanMobileProfileHeight" value="#{mobileProfileBean.mobileProfile.height}"/>
+			<h:outputText/>
+			<h:outputLabel for="mobileProfileBeanMobileProfileStreams" value="Streams:"/>
+			<h:dataTable id="mobileProfileBeanMobileProfileStreams" styleClass="data-table" value="#{forgeview:asList(mobileProfileBean.mobileProfile.streams)}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Friendly Name"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemFriendlyName" value="#{_item.friendlyName}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Description"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemDescription" value="#{_item.description}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Rtmp Uri"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemRtmpUri" value="#{_item.rtmpUri}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Server"/>
+					</f:facet>
+					<h:link outcome="/stream/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemServer" value="#{_item.server}"/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<h:outputText/>
+			<h:outputLabel for="mobileProfileBeanMobileProfileEncoders" value="Encoders:"/>
+			<h:dataTable id="mobileProfileBeanMobileProfileEncoders" styleClass="data-table" value="#{forgeview:asList(mobileProfileBean.mobileProfile.encoders)}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Friendly Name"/>
+					</f:facet>
+					<h:link outcome="/encoder/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemFriendlyName" value="#{_item.friendlyName}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Description"/>
+					</f:facet>
+					<h:link outcome="/encoder/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemDescription" value="#{_item.description}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Rtmp Uri"/>
+					</f:facet>
+					<h:link outcome="/encoder/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemRtmpUri" value="#{_item.rtmpUri}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Server"/>
+					</f:facet>
+					<h:link outcome="/encoder/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemServer" value="#{_item.server}"/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<h:outputText/>
+		</h:panelGrid>
+
+		<div class="buttons">
+			<h:link value="View All" outcome="search" styleClass="btn btn-primary"/> 
+			<h:link value="Edit" outcome="create" includeViewParams="true" styleClass="btn btn-primary"/>
+			<h:link value="Create New" outcome="create" styleClass="btn btn-primary"/>
+		</div>
+	</ui:define>
+
+</ui:composition>

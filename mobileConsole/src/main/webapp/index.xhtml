@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:forgeview="http://jboss.org/forge/view"
+	template="/resources/scaffold/pageTemplate.xhtml">
+
+	<ui:param name="pageTitle" value="Welcome to Forge" />
+
+	<ui:define name="header">
+		dRDenver's Mobile Console
+	</ui:define>
+
+	<ui:define name="main">
+		<h:form>
+			<h:panelGroup rendered="#{not empty red5ServerBean.all}" >
+				<p><h:outputLabel value="Servers" for="serverTable" /></p>
+				<h:dataTable id="serverTable" value="#{red5ServerBean.all}" var="_server" styleClass="data-table">
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Server Name"/>
+						</f:facet>
+						<h:link outcome="/red5Server/view">
+							<f:param name="id" value="#{_server.id}"/>
+							<h:panelGrid  columns="2">
+								<h:outputText styleClass="#{_server.enabled ? 'boolean-true' : 'boolean-false'}" value=""/>
+								<h:outputText id="serverName" value="#{_server.name}"/>
+							</h:panelGrid>
+						</h:link>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="Streams"/>
+						</f:facet>
+						<h:dataTable value="#{red5ServerBean.getStreamsForServer(_server.id)}" var="_stream">
+							<h:column>
+								<h:link outcome="/stream/view">
+									<f:param name="id" value="#{_stream.id}"/>
+									<h:panelGrid  columns="2">
+										<h:outputText styleClass="#{streams.contains(_stream) ? 'boolean-true' : 'boolean-false'}" value=""/>
+										<h:outputText value="#{_stream.friendlyName}"/>
+									</h:panelGrid>
+								</h:link>
+							</h:column>
+							<h:column>
+								<h:outputText value="#{streams.getListeners(_stream) > 0 ? streams.getListeners(_stream) : 'No'} listeners"/>
+							</h:column>
+							<h:column>
+								<h:commandButton value="#{streams.getStreamRecordingStatus(_stream) ? 'Stop' : 'Start'} Recording" action="#{encoderBean.toggleRecording(_stream)}" disabled="#{not streams.contains(_stream)}" />
+							</h:column>
+							<h:column>
+								<h:dataTable value="#{streamBean.getEncodersForStream(_stream.id)}" var="_encoder" >
+									<h:column>
+										<h:panelGrid  columns="2">
+											<h:link outcome="/encoder/view">
+												<f:param name="id" value="#{_encoder.id}"/>
+												<h:panelGrid  columns="2">
+													<h:outputText styleClass="#{encoders.contains(_encoder) ? 'boolean-true' : 'boolean-false'}" value=""/>
+													<h:outputText id="serverName" value="#{_encoder.mobileProfile.name}"/>
+												</h:panelGrid>
+											</h:link>
+											<h:commandButton value="#{encoders.contains(_encoder) ? 'Stop' : 'Start'} Encoder" action="#{encoderBean.toggleEncoder(_encoder.id)}" disabled="#{not streams.contains(_stream)}" />
+										</h:panelGrid>
+									</h:column>
+								</h:dataTable>
+							</h:column>
+						</h:dataTable>
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
+		</h:form>
+	</ui:define>
+</ui:composition>

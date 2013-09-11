@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/resources/scaffold/pageTemplate.xhtml">
+
+	<f:metadata>
+		<f:viewParam name="page" value="#{encoderBean.page}"/>
+		<f:event type="preRenderView" listener="#{encoderBean.paginate}"/>
+	</f:metadata>
+
+	<ui:param name="pageTitle" value="Search Encoder entities"/>
+
+	<ui:define name="header">
+		Encoder
+	</ui:define>
+
+	<ui:define name="subheader">
+		Search Encoder entities
+	</ui:define>
+
+	<ui:define name="footer"/>
+
+	<ui:define name="main">
+		<h:form id="search">
+			<f:validateBean disabled="true">
+				<h:panelGroup styleClass="search">
+
+					<h:panelGrid columnClasses="label,component,required" columns="3">
+						<h:outputLabel for="encoderBeanExampleMobileProfile" value="Mobile Profile:"/>
+						<h:panelGroup>
+							<h:selectOneMenu converter="#{mobileProfileBean.converter}" id="encoderBeanExampleMobileProfile" value="#{encoderBean.example.mobileProfile}">
+								<f:selectItem/>
+								<f:selectItems value="#{mobileProfileBean.all}"/>
+							</h:selectOneMenu>
+							<h:message for="encoderBeanExampleMobileProfile" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+						<h:outputLabel for="encoderBeanExampleStream" value="Stream:"/>
+						<h:panelGroup>
+							<h:selectOneMenu converter="#{streamBean.converter}" id="encoderBeanExampleStream" value="#{encoderBean.example.stream}">
+								<f:selectItem/>
+								<f:selectItems value="#{streamBean.all}"/>
+							</h:selectOneMenu>
+							<h:message for="encoderBeanExampleStream" styleClass="error"/>
+						</h:panelGroup>
+						<h:outputText/>
+					</h:panelGrid>
+					<h:panelGroup styleClass="buttons">
+						<h:commandLink value="Search" action="#{encoderBean.search}" styleClass="btn btn-primary"/>
+						<h:commandLink value="Create New" action="#{encoderBean.create}" styleClass="btn btn-primary"/>
+					</h:panelGroup>
+				</h:panelGroup>
+			</f:validateBean>
+			
+			<h:dataTable id="encoderBeanPageItems" styleClass="data-table" value="#{encoderBean.pageItems}" var="_item">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Mobile Profile"/>
+					</f:facet>
+					<h:link outcome="/encoder/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemMobileProfile" value="#{_item.mobileProfile}"/>
+					</h:link>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="Stream"/>
+					</f:facet>
+					<h:link outcome="/encoder/view">
+						<f:param name="id" value="#{_item.id}"/>
+						<h:outputText id="itemStream" value="#{_item.stream}"/>
+					</h:link>
+				</h:column>
+			</h:dataTable>
+			<ui:include src="/resources/scaffold/paginator.xhtml">
+				<ui:param name="paginatorBean" value="#{encoderBean}"/>
+			</ui:include>
+		</h:form>
+			
+	</ui:define>
+
+</ui:composition>
