@@ -40,7 +40,7 @@ public class Encoders extends CopyOnWriteArrayList<Encoder> implements Serializa
 	private static final long serialVersionUID = -5411315964008656521L;
 	private static final Logger log = Logger.getLogger(Encoders.class);
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	@PersistenceContext(type = PersistenceContextType.EXTENDED)
+	@PersistenceContext
 	private EntityManager entityManager;
 	
 	private static ConcurrentHashMap<String,Future<StopEncoderTask>> running = new ConcurrentHashMap<String,Future<StopEncoderTask>>();

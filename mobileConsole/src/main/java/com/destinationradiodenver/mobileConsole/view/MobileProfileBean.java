@@ -70,7 +70,7 @@ public class MobileProfileBean implements Serializable
    @Inject
    private Conversation conversation;
 
-   @PersistenceContext(type = PersistenceContextType.EXTENDED)
+   @PersistenceContext
    private EntityManager entityManager;
 
    public String create()

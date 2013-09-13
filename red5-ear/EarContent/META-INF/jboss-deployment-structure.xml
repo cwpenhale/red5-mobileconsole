@@ -29,30 +29,8 @@
 			<module name="deployment.red5-ear.ear.mobileConsole.war" />
 		</dependencies>
 	</sub-deployment>
-	<!-- 
-	 <sub-deployment name="chat.war">
-		<dependencies>
-			<module name="org.red5.deps" export="true" />
-			<module name="org.red5.spring" export="true" />
-			<module name="org.red5.context" export="true" />
-			<module name="javax.jms.api" />
-			<module name="javax.inject.api" />
-			<module name="deployment.red5-ear.ear.red5.war" />
-		</dependencies>
-	</sub-deployment>
-	 -->
 	<sub-deployment name="mobileConsole.war">
 		<dependencies>
-			<module name="org.jboss.richfaces" export="true">
-				<imports>
-					<include path="**" />
-				</imports>
-			</module>
-			<module name="org.primefaces" export="true">
-				<imports>
-					<include path="**" />
-				</imports>
-			</module>
 			<module name="org.hibernate" />
 			<module name="org.dom4j" />
 			<module name="org.hibernate.validator" />

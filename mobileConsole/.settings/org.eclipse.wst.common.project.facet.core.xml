@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faceted-project>
-  <runtime name="JBoss 7.1 Runtime"/>
+  <runtime name="WildFly 8.0 Runtime"/>
   <fixed facet="wst.jsdt.web"/>
   <installed facet="jboss.m2" version="1.0"/>
   <installed facet="jst.web" version="3.0"/>

@@ -82,7 +82,7 @@ public class Red5ServerBean implements Serializable
    @Inject
    private Conversation conversation;
 
-   @PersistenceContext(type = PersistenceContextType.EXTENDED)
+   @PersistenceContext
    private EntityManager entityManager;
 
    public String create()

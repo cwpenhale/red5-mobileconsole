@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources xmlns="http://www.jboss.org/ironjacamar/schema">
     <datasource 
-        jndi-name="webDatasource"
+        jndi-name="red5-mobileconsole-ds"
         enabled="true" 
         use-java-context="true" pool-name="webDatasource_pool">
-        <connection-url>jdbc:postgresql://localhost:5432/drdenver</connection-url>
+        <connection-url>jdbc:postgresql://localhost:5432/red5-mobileconsole</connection-url>
         <driver>postgresql-9.2-1002.jdbc4.jar</driver>
         <security>
 		      <user-name>jboss</user-name>

@@ -287,7 +287,7 @@ public class EhCacheImpl implements ICacheStore, ApplicationContextAware {
 	 * @return Value for property 'cacheHit'.
 	 */
 	public static long getCacheHit() {
-		return cache.getStatistics().getCacheHits();
+		return cache.getStatistics().cacheHitCount();
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class EhCacheImpl implements ICacheStore, ApplicationContextAware {
 	 * @return Value for property 'cacheMiss'.
 	 */
 	public static long getCacheMiss() {
-		return cache.getStatistics().getCacheMisses();
+		return cache.getStatistics().cacheMissCount();
 	}
 
 	/** {@inheritDoc} */
