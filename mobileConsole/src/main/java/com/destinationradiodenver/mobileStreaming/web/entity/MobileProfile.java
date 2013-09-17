@@ -1,12 +1,16 @@
 package com.destinationradiodenver.mobileStreaming.web.entity;
 
 import javax.persistence.Entity;
+
 import java.io.Serializable;
+
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
 import javax.persistence.Version;
+
 import java.lang.Override;
 import java.util.Set;
 import java.util.HashSet;
@@ -47,10 +51,10 @@ public class MobileProfile implements Serializable
    @Column
    private int height;
 
-   private @ManyToMany(mappedBy = "mobileProfiles")
+   private @ManyToMany(mappedBy = "mobileProfiles", fetch = FetchType.EAGER)
    Set<Stream> streams = new HashSet<Stream>();
 
-   private @OneToMany(mappedBy = "mobileProfile", cascade = CascadeType.ALL)
+   private @OneToMany(mappedBy = "mobileProfile", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
    Set<Encoder> encoders = new HashSet<Encoder>();
 
    public Long getId()

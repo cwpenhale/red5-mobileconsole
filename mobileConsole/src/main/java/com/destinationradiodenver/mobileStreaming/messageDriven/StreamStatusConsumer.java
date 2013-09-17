@@ -14,7 +14,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.transaction.UserTransaction;
 
 import org.jboss.logging.Logger;
 
@@ -46,8 +45,6 @@ public class StreamStatusConsumer implements Serializable, MessageListener {
 	@PersistenceContext(unitName="mobileConsolePersistence")
 	EntityManager em;
 	
-	@Resource(lookup="java:jboss/UserTransaction")
-	private UserTransaction userTransaction;
 	
 	public Stream generateStream(Red5Server server, String hostname, String scopeName, String publishedName){
 		Stream newStream = new Stream();

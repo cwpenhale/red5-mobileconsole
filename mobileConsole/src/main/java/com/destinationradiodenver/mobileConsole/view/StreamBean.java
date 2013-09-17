@@ -86,7 +86,7 @@ public class StreamBean implements Serializable
    @Inject
    private Streams streams;
    
-   @PersistenceContext
+   @PersistenceContext(type = PersistenceContextType.EXTENDED)
    private EntityManager entityManager;
    
    public boolean active;
