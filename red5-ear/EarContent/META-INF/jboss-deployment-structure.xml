@@ -22,7 +22,7 @@
 			<module name="org.red5.deps" export="true" />
 			<module name="org.red5.spring" export="true" />
 			<module name="org.red5.context" export="true" />
-			<module name="com.xuggle.xuggler" />
+			<module name="io.humble" />
 			<module name="javax.jms.api" />
 			<module name="javax.inject.api" />
 			<module name="deployment.red5-ear.ear.red5.war" />

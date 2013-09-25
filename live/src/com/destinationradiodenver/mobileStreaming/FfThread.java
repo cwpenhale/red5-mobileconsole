@@ -1,7 +1,25 @@
 package com.destinationradiodenver.mobileStreaming;
 
+import io.humble.video.AudioChannel.Layout;
+import io.humble.video.Codec;
+import io.humble.video.Decoder;
+import io.humble.video.Demuxer;
+import io.humble.video.DemuxerFormat;
+import io.humble.video.DemuxerStream;
+import io.humble.video.Encoder;
+import io.humble.video.KeyValueBag;
+import io.humble.video.MediaAudio;
+import io.humble.video.MediaAudioResampler;
+import io.humble.video.MediaDescriptor;
+import io.humble.video.MediaPacket;
+import io.humble.video.MediaPicture;
+import io.humble.video.MediaPictureResampler;
+import io.humble.video.Muxer;
+import io.humble.video.MuxerFormat;
+import io.humble.video.MuxerStream;
+import io.humble.video.Rational;
+
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -10,21 +28,6 @@ import org.red5.service.httpstream.model.MobileProfile;
 
 import com.destinationradiodenver.mobileStreaming.messages.EncoderStatusMessage;
 import com.destinationradiodenver.mobileStreaming.messages.EncoderStatusMessage.Status;
-import com.xuggle.xuggler.IAudioResampler;
-import com.xuggle.xuggler.IAudioSamples;
-import com.xuggle.xuggler.IAudioSamples.Format;
-import com.xuggle.xuggler.ICodec;
-import com.xuggle.xuggler.ICodec.ID;
-import com.xuggle.xuggler.IContainer;
-import com.xuggle.xuggler.IContainerFormat;
-import com.xuggle.xuggler.IContainerFormat.Flags;
-import com.xuggle.xuggler.IPacket;
-import com.xuggle.xuggler.IPixelFormat.Type;
-import com.xuggle.xuggler.IRational;
-import com.xuggle.xuggler.IStream;
-import com.xuggle.xuggler.IStreamCoder;
-import com.xuggle.xuggler.IVideoPicture;
-import com.xuggle.xuggler.IVideoResampler;
 
 public class FfThread implements Runnable {
 	private static final Logger log = Logger.getLogger(FfThread.class.getName());
@@ -36,34 +39,32 @@ public class FfThread implements Runnable {
 	private String streamName;
 	private int mAudioStreamId;
 	private int mVideoStreamId;
-	private IContainer inC;
-	private IContainer outC;
-	private IContainerFormat outCF;
-	private IContainerFormat inCF;
-	private IStreamCoder mOutAudioCoder;
-	private IStreamCoder mOutVideoCoder;
-	private IStreamCoder mInAudioCoder;
-	private IStreamCoder mInVideoCoder;
+	private Demuxer inC;
+	private Muxer outC;
+	private Encoder mOutAudioCoder;
+	private Encoder mOutVideoCoder;
+	private Decoder mInAudioCoder;
+	private Decoder mInVideoCoder;
 	private boolean codersSetup;
 	private int codersSetupCounter;
 	@SuppressWarnings("unused")
 	private boolean doOnce;
 
-	private IPacket iPacket;
+	private MediaPacket iPacket;
 
-	private IVideoResampler mVideoResampler;
+	private MediaPictureResampler mVideoResampler;
 
-	private IAudioResampler mAudioResampler;
+	private MediaAudioResampler mAudioResampler;
 
-	private IStream vOutStream;
+	private MuxerStream vOutStream;
 
-	private IStream aOutStream;
-
-	@SuppressWarnings("unused")
-	private IStream mAInStream;
+	private MuxerStream aOutStream;
 
 	@SuppressWarnings("unused")
-	private IStream mVInStream;
+	private DemuxerStream mAInStream;
+
+	@SuppressWarnings("unused")
+	private DemuxerStream mVInStream;
 	
 	private boolean containersOpen;
 	
@@ -182,8 +183,8 @@ public class FfThread implements Runnable {
 	    getEncoderStatusDispatcher().dispatch(statusMessage);
 	}
 
-	private void transcode() throws InterruptedException {
-		iPacket = IPacket.make();
+	private void transcode() throws InterruptedException, IOException {
+		iPacket = MediaPacket.make();
 		log.tracef("Packets and Audio buffers created");
 		log.tracef("FFThread declares ready: %s", pipePath);
 		// 02-12-13 -- We now signal JMS to say we are running
@@ -199,7 +200,7 @@ public class FfThread implements Runnable {
 		log.info("Dispatched FfThread started message");
 		// end 02-12-13
 		log.tracef("About your in-coder: %s", inC);
-		while (inC.readNextPacket(iPacket) >= 0) {
+		while (inC.read(iPacket) >= 0) {
 			if(isInterruptMe())
 				throw new InterruptedException("Transcoding is interrupted");
 			log.tracef("reading packet");
@@ -229,37 +230,31 @@ public class FfThread implements Runnable {
 
 	}
 	
-	private void writePacket(IPacket oPacket) {
-		if(outC.writePacket(oPacket, true)<0){
-			throw new RuntimeException("couldn't write output packet");
-		}
+	private void writePacket(MediaPacket oPacket) {
+		outC.write(oPacket, true);
 	}
 
 
-	private void encodeVideo(IVideoPicture postDecode) {
-		int retval;
-		IPacket oPacket = IPacket.make();
-		retval = mOutVideoCoder.encodeVideo(oPacket, postDecode, 0);
-		if(retval <= 0){
-			log.tracef("couldnt encode IVP, continuing anyway");
-		}
+	private void encodeVideo(MediaPicture postDecode) {
+		MediaPacket oPacket = MediaPacket.make();
+		mOutVideoCoder.encodeVideo(oPacket, postDecode);
 		if(oPacket.isComplete()){
 			writePacket(oPacket);
 		}
 	}
 
 
-	private void encodeAudio(IAudioSamples samples) {
+	private void encodeAudio(MediaAudio samples) {
 		log.tracef("encode audio called : %s", samples);
 		int retval = 0;
-		IPacket oPacket = IPacket.make();
-	    IAudioSamples preEncode = samples;
+		MediaPacket oPacket = MediaPacket.make();
+	    MediaAudio preEncode = samples;
 	    int numSamplesConsumed = 0;
 		log.tracef("entering while loop");
 	    while (numSamplesConsumed < preEncode.getNumSamples()) {
 	    	if(mOutAudioCoder!=null){
 	    		log.tracef("out coder is not null: %s", mOutAudioCoder);
-		    	retval = mOutAudioCoder.encodeAudio(oPacket, preEncode, numSamplesConsumed);
+		    	mOutAudioCoder.encodeAudio(oPacket, preEncode);
 		    	log.tracef("encode audio retval: %s", retval);
 	    		if(retval <= 0){
 		    		log.tracef("could not encode audio samples; continuing anyway");
@@ -280,21 +275,21 @@ public class FfThread implements Runnable {
 	
 
 
-	private void decodeAudio(IPacket packet) {
+	private void decodeAudio(MediaPacket packet) {
 		int retval = -1;
-	    IAudioSamples inSamples = IAudioSamples.make(1024, 2, Format.FMT_S16);
-	    IAudioSamples reSamples = null;
+	    MediaAudio inSamples = MediaAudio.make(1024, 44100, 2, Layout.CH_LAYOUT_STEREO, (io.humble.video.AudioFormat.Type.SAMPLE_FMT_S16));
+	    MediaAudio reSamples = null;
 	    int offset = 0;
 	    log.tracef("ready to decode audio");
 	    while (offset < packet.getSize()) {
-	        retval = mInAudioCoder.decodeAudio(inSamples, packet, offset);
+	    	retval = mInAudioCoder.decodeAudio(null, packet, offset);
 	        if (retval <= 0) {
 	        	log.errorf("couldn't decode audio");
 	            throw new RuntimeException("could not decode audio");
 	        }
 	        offset += retval;
 		    log.tracef("audio loop offset: %s", offset);
-		    IAudioSamples postDecode = inSamples;
+		    MediaAudio postDecode = inSamples;
 			if (postDecode.isComplete()) {
 			  log.tracef("postDecode was complete: %s", postDecode);
 			  reSamples = resampleAudio(postDecode);
@@ -312,17 +307,17 @@ public class FfThread implements Runnable {
 	} 
 	
 	@SuppressWarnings("unused")
-	private IAudioSamples resampleAudio(IAudioSamples samples){
-	    IAudioSamples reSamples;
+	private MediaAudio resampleAudio(MediaAudio samples){
+		MediaAudio reSamples;
 	    openAudioResampler(samples);
-	    IAudioSamples outSamples = IAudioSamples.make(1024, 2, Format.FMT_S16);
+	    MediaAudio outSamples = MediaAudio.make(1024, 44100, 2, Layout.CH_LAYOUT_STEREO, (io.humble.video.AudioFormat.Type.SAMPLE_FMT_S16));
 	    if (mAudioResampler != null && samples.getNumSamples() > 0) {
 	      log.tracef("ready to resample audio");
-	      IAudioSamples preResample = samples;
+	      MediaAudio preResample = samples;
 	      if (preResample == null)
 	    	  preResample = samples;
 	      int retval = -1;
-	      retval = mAudioResampler.resample(outSamples, preResample, preResample.getNumSamples());
+	      retval = mAudioResampler.resample(outSamples, preResample);
 	      if (retval < 0)
 	        throw new RuntimeException("could not resample audio");
 	      log.tracef("resampled %s input samples (%skhz %s channels) to %s output samples (%skhz %s channels)",
@@ -334,7 +329,7 @@ public class FfThread implements Runnable {
 	          outSamples.getSampleRate(),
 	          outSamples.getChannels()
 	      	});
-	      	IAudioSamples postResample= outSamples;
+	      	MediaAudio postResample= outSamples;
 			if (postResample == null)
 				postResample = outSamples;
 			reSamples = postResample;
@@ -344,17 +339,17 @@ public class FfThread implements Runnable {
 		    return reSamples;
 	  }
 	
-	private void openAudioResampler(IAudioSamples samples) {
+	private void openAudioResampler(MediaAudio samples) {
 	    if (mAudioResampler == null && mOutAudioCoder != null) {
-			mAudioResampler = IAudioResampler.make(mOutAudioCoder.getChannels(), samples.getChannels(), mOutAudioCoder.getSampleRate(), samples.getSampleRate());
+	    	mAudioResampler = MediaAudioResampler.make(mOutAudioCoder.getChannelLayout(), mOutAudioCoder.getSampleRate(), mOutAudioCoder.getSampleFormat(), mInAudioCoder.getChannelLayout(), mInAudioCoder.getSampleRate(), mInAudioCoder.getSampleFormat());
 	        if (mAudioResampler == null) {
 	          throw new RuntimeException("needed to resample audio but couldn't allocate a resampler");
 	        }
 	        log.tracef("Setup resample to convert \"%skhz %s channel audio\" to \"%skhz %s channel\" audio",
 	            new Object[]{
-	            mAudioResampler.getInputRate(),
+	            mAudioResampler.getInputSampleRate(),
 	            mAudioResampler.getInputChannels(),
-	            mAudioResampler.getOutputRate(),
+	            mAudioResampler.getOutputSampleRate(),
 	            mAudioResampler.getOutputChannels()
 	        });
 	    	// and we write the output header
@@ -372,12 +367,10 @@ public class FfThread implements Runnable {
 
 	
 
-	private void decodeVideo(IPacket packet) {
+	private void decodeVideo(MediaPacket packet) {
 	    int retval = -1;
-		IVideoPicture inPicture = IVideoPicture.make(mInVideoCoder
-				.getPixelType(), mInVideoCoder.getWidth(), mInVideoCoder
-				.getHeight());
-		IVideoPicture reSample = null;
+		MediaPicture inPicture = MediaPicture.make(mInVideoCoder.getWidth(), mInVideoCoder.getHeight(), mInVideoCoder.getPixelFormat());
+		MediaPicture reSample = null;
 	    int offset = 0;
 	    while (offset < packet.getSize()) {
 	        retval = mInVideoCoder.decodeVideo(inPicture, packet, offset);
@@ -386,7 +379,7 @@ public class FfThread implements Runnable {
 	        	return;
 	        }
 	        offset += retval;
-		    IVideoPicture postDecode = inPicture;
+	        MediaPicture postDecode = inPicture;
 		    if(postDecode.isComplete()){
 		    	reSample = resampleVideo(postDecode);
 		    }
@@ -397,24 +390,23 @@ public class FfThread implements Runnable {
 	    }
 	}
 
-	private IVideoPicture resampleVideo(IVideoPicture postDecode) {
-		IVideoPicture reSample;
+	private MediaPicture resampleVideo(MediaPicture postDecode) {
+		MediaPicture reSample;
 		openVideoResampler(postDecode);
 		if (mVideoResampler != null) {
 			log.tracef("ready to resample video");
-			IVideoPicture outPicture = IVideoPicture.make(mOutVideoCoder.getPixelType(), mOutVideoCoder.getWidth(), mOutVideoCoder.getHeight());
-			IVideoPicture preResample = postDecode;
-			if (mVideoResampler.resample(outPicture, preResample) < 0)
-				throw new RuntimeException("could not resample video");
+			MediaPicture outPicture = MediaPicture.make(mOutVideoCoder.getWidth(), mOutVideoCoder.getHeight(), mOutVideoCoder.getPixelFormat());
+			MediaPicture preResample = postDecode;
+			mVideoResampler.resample(outPicture, preResample);
 			if (log.isTraceEnabled())
 				log.tracef("resampled input picture (type: %s; width: %s; height: %s) to output (type: %s; width: %s; height: %s)",
-					new Object[] { preResample.getPixelType(),
+					new Object[] { preResample.getType(),
 						preResample.getWidth(),
 						preResample.getHeight(),
-						outPicture.getPixelType(),
+						outPicture.getTimeBase(),
 						outPicture.getWidth(),
 						outPicture.getHeight() });
-			IVideoPicture postResample = outPicture;
+			MediaPicture postResample = outPicture;
 			reSample = postResample;
 		} else {
 			reSample = postDecode;
@@ -422,7 +414,7 @@ public class FfThread implements Runnable {
 		return reSample;
 	}
 	
-	  private void openVideoResampler(IVideoPicture picture)
+	  private void openVideoResampler(MediaPicture picture)
 	  {
 	    if (mVideoResampler == null && mOutVideoCoder != null)
 	    {
@@ -430,17 +422,11 @@ public class FfThread implements Runnable {
 	        throw new RuntimeException("frame has no data in it so cannot resample");
 
 	      // We set up our resampler.
-	      if (mOutVideoCoder.getPixelType() != picture.getPixelType() ||
+	      if (mOutVideoCoder.getPixelFormat() != picture.getFormat() ||
 	          mOutVideoCoder.getWidth() != picture.getWidth() ||
 	          mOutVideoCoder.getHeight() != picture.getHeight())
 	      {
-	        mVideoResampler = IVideoResampler.make(
-	            mOutVideoCoder.getWidth(),
-	            mOutVideoCoder.getHeight(),
-	            mOutVideoCoder.getPixelType(),
-	            picture.getWidth(),
-	            picture.getHeight(),
-	            picture.getPixelType());
+	        mVideoResampler = MediaPictureResampler.make(mOutVideoCoder.getWidth(), mOutVideoCoder.getHeight(), mOutVideoCoder.getPixelFormat(), mInVideoCoder.getWidth(), mInVideoCoder.getHeight(), mInVideoCoder.getPixelFormat(), 0);
 	        if (mVideoResampler == null)
 	        {
 	          log.errorf("Could not create a video resampler; this object is only available in the GPL version of aaffmpeg");
@@ -450,38 +436,52 @@ public class FfThread implements Runnable {
 	            new Object[]{
 	            mVideoResampler.getInputWidth(),
 	            mVideoResampler.getInputHeight(),
-	            mVideoResampler.getInputPixelFormat(),
+	            mVideoResampler.getInputFormat(),
 	            mVideoResampler.getOutputWidth(),
 	            mVideoResampler.getOutputHeight(),
-	            mVideoResampler.getOutputPixelFormat()
+	            mVideoResampler.getOutputFormat()
 	            });
 	      }
 	    }
 	  }
 
 
-	private void openInputCoders(IPacket packet) {
-        int numStreams = inC.getNumStreams();
+	private void openInputCoders(MediaPacket packet) {
+        int numStreams = -1;
+		try {
+			numStreams = inC.getNumStreams();
+		} catch (InterruptedException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(numStreams<0){
+			//TODO: broken windows, clean this up.
+			throw new RuntimeException("No streams");
+		}
         log.tracef("number of streams: %s", numStreams);
 	    if (mAudioStreamId == -1 || mVideoStreamId == -1){
 	        log.tracef("first condition true");
 	    	for(int i = 0; i < numStreams; i++){
 		        log.tracef("beginning for loop");
-	            IStream stream = inC.getStream(i);
+	            DemuxerStream stream = null;
+				try {
+					stream = inC.getStream(i);
+				} catch (InterruptedException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	            if(stream!=null){
 			        log.tracef("got stream: %s", stream);
-	            	IStreamCoder coder = stream.getStreamCoder();
+	            	Decoder coder = stream.getDecoder();
 	            	if(coder != null){
 				        log.tracef("got coder: %s", coder);
 	            		//is audio stream
-	            		if((coder.getCodecType()==ICodec.Type.CODEC_TYPE_AUDIO)&&(mAudioStreamId==-1)&&(packet.getStreamIndex()==i)){
+	            		if((coder.getCodecType().equals(MediaDescriptor.Type.MEDIA_AUDIO))&&(mAudioStreamId==-1)&&(packet.getStreamIndex()==i)){
 	            			log.tracef("got audio coder: %s", coder);
 	            			if(coder.getCodec() != null){
 	            				mInAudioCoder = coder;
-	            		    	if (mInAudioCoder.open(null, null) < 0){
-	            					log.errorf("died on open a coder");
-	            		            throw new RuntimeException("could not open audio coder for stream: " + mAudioStreamId);
-	            		    	}
+	            		    	mInAudioCoder.open(null, null);
+            					log.errorf("didn't die on open a coder");
 		            			log.tracef("didnt die on audio, stream id is: %s", i);
 		            			mAInStream = stream;
 	                            mAudioStreamId = i;
@@ -491,16 +491,14 @@ public class FfThread implements Runnable {
 	            			}
 	            		}
 	            		//is video stream
-	            		if((coder.getCodecType()==ICodec.Type.CODEC_TYPE_VIDEO)&&(mVideoStreamId==-1)&&(packet.getStreamIndex()==i)){
+	            		if(coder.getCodecType().equals(MediaDescriptor.Type.MEDIA_VIDEO)&&(mVideoStreamId==-1)&&(packet.getStreamIndex()==i)){
 	            			log.tracef("got video coder: %s", coder);
 	            			if(coder.getCodec() != null){
 	            				mInVideoCoder = coder;
-	            				mInVideoCoder.setAutomaticallyStampPacketsForStream(false);
-	            				mInVideoCoder.setTimeBase(IRational.make(1, 1000));
-	            			  	if (mInVideoCoder.open(null, null) < 0){
-	            					log.tracef("died on open v coder");
-	            		            throw new RuntimeException("could not open video coder for stream: %s" + mVideoStreamId);
-	            		    	}
+	            				//mInVideoCoder.setAutomaticallyStampPacketsForStream(false);
+	            				mInVideoCoder.setTimeBase(Rational.make(1, 1000));
+	            			  	mInVideoCoder.open(null, null);
+	            			  	log.tracef("didn't die on open v coder");
 	            			  	mVInStream = stream;
 	                            mVideoStreamId = i;
 	            			}else{
@@ -510,18 +508,14 @@ public class FfThread implements Runnable {
 	            		}
 	            		if((coder.getCodec()==null)){
 	            			log.tracef("shits null dog: %s", coder);
-	       		    		ICodec newCodec = ICodec.findDecodingCodec(ID.CODEC_ID_AAC);
-	    		    		coder.setCodec(newCodec);
-	       		    		coder.setChannels(2);
-	       		    		coder.setSampleFormat(Format.FMT_S16);
-	       		    		coder.setSampleRate(44100);
-	       		    		coder.setBitRate(128000);
+	            			coder.setChannels(2);
+	            			coder.setSampleFormat(io.humble.video.AudioFormat.Type.SAMPLE_FMT_S16);
+	            			coder.setSampleRate(44100);
+	            			//coder.setBitRate(128000);
 	            			log.tracef("shit should no longer be null: %s", coder.getCodec());
 	            			mInAudioCoder = coder;
-	    		    		if(mInAudioCoder.open(null, null) <0){
-	        					log.errorf("died on open new audio coder");
-	        		            throw new RuntimeException("could not open audio coder for stream: %s" + mAudioStreamId);
-	    		    		}
+	    		    		mInAudioCoder.open(null, null);
+        					log.errorf("did not die on open new audio coder");
 	            			log.tracef("didnt die on audio, stream id is: %s", i);
 	            			mAInStream = stream;
                             mAudioStreamId = i;
@@ -553,19 +547,19 @@ public class FfThread implements Runnable {
 		try {
 			log.error("Closing out container");
 			if (outC != null) {
-				outC.writeTrailer();
+				//outC.writeTrailer();
 				outC.close();
 			}
 			if (inC != null)
 				inC.close();
 			if (mInAudioCoder != null)
-				mInAudioCoder.close();
+				mInAudioCoder.flush();
 			if (mInVideoCoder != null)
-				mInVideoCoder.close();
+				mInVideoCoder.flush();
 			if (mOutAudioCoder != null)
-				mOutAudioCoder.close();
+				mOutAudioCoder.encodeAudio(null, null);
 			if (mOutVideoCoder != null)
-				mOutVideoCoder.close();
+				mOutVideoCoder.encodeVideo(null, null);
 			log.error("Closed out container successfully");
 		} catch (Throwable e){
 			log.errorf("Throwable caught during container closure: %s", e.toString());
@@ -592,85 +586,62 @@ public class FfThread implements Runnable {
 				.getName(), threadName);
 		Thread.currentThread().setName(threadName);
 		// set up input container
-		inC = IContainer.make();
-		inCF = IContainerFormat.make();
-		inCF.setInputFormat("flv");
-		if (inC.open(getSourceURI(), IContainer.Type.READ, inCF, true, false) < 0)
-			log.errorf("input container open failed for: %s", getSourceURI());
-		// set up output container
-		/* known working:
-		 * /usr/local/xuggler/bin/ffmpeg
-		 * -re 
-		 * -i "rtmp://127.0.0.1/live/derp app=live subscribe=derp live=1" 
-		 * -vf scale=320:240 
-		 * -vcodec libx264 
-		 * -b:v 300k 
-		 * -acodec libfaac 
-		 * -ac 2 
-		 * -ar 48000 
-		 * -ab 192k 
-		 * -map 0 
-		 * -vbsf h264_mp4toannexb 
-		 * -f segment 
-		 * -segment_time 10 
-		 * -segment_format mpegts 
-		 * -segment_list derp.m3u8 
-		 * -segment_wrap 2 
-		 * -flags -global_header 
-		 * "output%1d.ts"
-		 */
-		outC = IContainer.make();
-		Collection<String> names = outC.getPropertyNames();
-		for(String name : names)
-			log.errorf("Property at make: %s", name);
-		outCF = IContainerFormat.make();
+		Demuxer inC = Demuxer.make();
+		try {
+			inC.open(getSourceURI(), DemuxerFormat.findFormat("flv"), true, false, null, null);
+		} catch (InterruptedException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		log.infof("Current state: %s", inC.getState().toString());
+		
+		outC = Muxer.make(pipePath, MuxerFormat.guessFormat("segment", null, null), "segment");
 		log.tracef("Containers made");
-		outCF.setOutputFormat("segment", null, null);
 		log.tracef("Segment format set");
-		outCF.setOutputFlag(Flags.FLAG_GLOBALHEADER, false);
-		log.tracef("flag 1 set");
-		outCF.setOutputFlag(Flags.FLAG_TS_DISCONT, true);
-		log.tracef("flag 2 set");
 		// ffmpeg expects file%1d.ts so that it can write file0.ts and file1.ts
 		String pipeName = getPipePath();
+		KeyValueBag outCoderBag = KeyValueBag.make();
+		outCoderBag.setValue("segment_time", "10");
+		outCoderBag.setValue("segment_format", "mpegts");
+		outCoderBag.setValue("segment_wrap", "2");
 		log.tracef("pipe path got");
 		pipeName += "%1d.ts";
-		if (outC.open(pipeName, IContainer.Type.WRITE, outCF, true, false, null, null) < 0)
-			log.errorf("output container open failed for: %s", getSourceURI());
+		try {
+			outC.open(null, outCoderBag);
+		} catch (InterruptedException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		log.tracef("container opened");
-		//ICodec vcodec = ICodec.guessEncodingCodec(null, "mp4", null, "audio/mp4", ICodec.Type.CODEC_TYPE_VIDEO);
-		ICodec vcodec = ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_H264);
+		Codec vcodec = Codec.findEncodingCodec(Codec.ID.CODEC_ID_H264);
 		log.tracef("codec created");
-		vOutStream = outC.addNewStream(vcodec);
+		mOutVideoCoder = Encoder.make(vcodec);
+		log.tracef("encoder created");
+		vOutStream = outC.addNewStream(mOutVideoCoder);
 		log.tracef("vOutStream created");
-		mOutVideoCoder = vOutStream.getStreamCoder();
 		log.tracef("video coder created");
-		mOutVideoCoder.setPixelType(Type.YUV420P);
-		mOutVideoCoder.setTimeBase(IRational.make(1, 90000));
-		mOutVideoCoder.setAutomaticallyStampPacketsForStream(false);
+		mOutVideoCoder.setPixelType(io.humble.video.PixelFormat.Type.PIX_FMT_YUVA420P);
+		mOutVideoCoder.setTimeBase(Rational.make(1, 90000));
+//		mOutVideoCoder.setAutomaticallyStampPacketsForStream(false);
 		mOutVideoCoder.setSampleRate(44100);
 		mOutVideoCoder.setWidth(getMobileProfile().getWidth());
 		mOutVideoCoder.setHeight(getMobileProfile().getHeight());
-		mOutVideoCoder.setBitRate(getMobileProfile().getBandwidth());
+//		mOutVideoCoder.setBitRate(getMobileProfile().getBandwidth());
 		log.errorf("video coder done");
 		//ICodec codec = ICodec.guessEncodingCodec(null, "mp4", null, "audio/mp4", ICodec.Type.CODEC_TYPE_AUDIO);
-		ICodec codec = ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_AAC);
-		//ICodec codec = ICodec.findEncodingCodecByName("libfaac");
-		aOutStream = outC.addNewStream(codec);
-		log.tracef("audio created");
-		mOutAudioCoder = aOutStream.getStreamCoder();
+		Codec acodec = Codec.findDecodingCodec(Codec.ID.CODEC_ID_AAC);
+		mOutAudioCoder = Encoder.make(acodec);
 		mOutAudioCoder.setSampleRate(44100);
-		mOutAudioCoder.setBitRate(128000);
+		//mOutAudioCoder = aOutStream.getStreamCoder();
+		//mOutAudioCoder.setBitRate(128000);
 		mOutAudioCoder.setChannels(2);
+		aOutStream = outC.addNewStream(mOutAudioCoder);
+		log.tracef("audio created");
 		log.tracef("audio done");
-		if(mOutVideoCoder.open(null, null)<0)
-			log.errorf("Couldn't open video coder");
-		if(mOutAudioCoder.open(null, null) <0)
-			log.errorf("Couldn't open audio coder");
-		if(outC.writeHeader()<0){
-			log.errorf("we fucked up writing the header");
-			throw new RuntimeException("couldn't write header");
-		}
+		mOutVideoCoder.open(null, null);
+		log.errorf("opened video coder");
+		mOutAudioCoder.open(null, null);
+		log.errorf("opened audio coder");
 		log.tracef("we wrote the header");
 	}
 
