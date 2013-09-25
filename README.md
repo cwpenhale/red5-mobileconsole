@@ -7,7 +7,7 @@ What is it?
 ---------------------
 
 red5-ear.ear:
-- Red5 bundled as an ear that deploys on JBoss 7 (currently using 7.1.3.Final on drdenver.tv)
+- Red5 bundled as an ear that deploys on JBoss 7, and now Wildfly 8.0.4.Alpha (currently using 7.1.3.Final on drdenver.tv)
 
 red5.war:
  - Red5, more or less untouched (need to compare any changes I made against current SVN, years ago), with a jboss deployment structure to get everything loaded
