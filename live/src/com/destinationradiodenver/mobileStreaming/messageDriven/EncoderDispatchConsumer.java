@@ -15,7 +15,6 @@ import javax.jms.ObjectMessage;
 import org.jboss.logging.Logger;
 import org.red5.service.httpstream.model.MobileProfile;
 
-import com.destinationradiodenver.mobileStreaming.EncoderStatusDispatcher;
 import com.destinationradiodenver.mobileStreaming.FfThread;
 import com.destinationradiodenver.mobileStreaming.messages.EncoderDispatchMessage;
 import com.destinationradiodenver.mobileStreaming.messages.EncoderDispatchMessage.Task;

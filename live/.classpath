@@ -6,12 +6,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/mobileConsole"/>
-	<classpathentry kind="src" path="/red5_server"/>
-	<classpathentry kind="lib" path="/modules/modules/org/red5/spring/main/spring-context-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="/modules/modules/org/red5/spring/main/seam-spring-core.jar"/>
-	<classpathentry kind="lib" path="/modules/modules/org/apache/commons/io/main/commons-io-2.1.jar"/>
-	<classpathentry kind="lib" path="/modules/modules/org/apache/commons/lang/main/commons-lang3-3.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.jboss.ide.eclipse.as.core.server.runtime.runtimeTarget/WildFly 8.0 Runtime">
 		<attributes>
 			<attribute name="owner.project.facets" value="jst.web"/>
@@ -22,6 +16,13 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/humble-video-noarch"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/mobileConsole"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/red5_server"/>
+	<classpathentry kind="src" path="/humble-video-noarch"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
